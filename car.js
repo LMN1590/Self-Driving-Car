@@ -11,7 +11,7 @@ class Car{
         this.angle=0;
         this.controls= new Controls();
     }
-    update(){
+    #move(){
         if(this.controls.forward){
             if(this.speed>0) this.speed-=this.accel*2;
             else this.speed-=this.accel;
@@ -35,10 +35,11 @@ class Car{
         if(this.speed>0)this.speed-=this.friction;
         if(this.speed<0)this.speed+=this.friction;
 
-        console.log(this.angle);
-
         this.x+=Math.sin(this.angle)*this.speed;
         this.y+=Math.cos(this.angle)*this.speed;
+    }
+    update(){
+        this.#move();
     }
     draw(ctx){
         ctx.save();
