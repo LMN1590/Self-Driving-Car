@@ -20,11 +20,13 @@ class Car{
             if(this.speed<0) this.speed+=this.accel*2;
             else this.speed+=this.accel;
         }
-        if(this.controls.left){
-            this.angle-=0.05;
-        }
-        if(this.controls.right){
-            this.angle+=0.05;
+        if(this.controls.forward || this.controls.reverse){
+            if(this.controls.left){
+                this.angle+=0.05;
+            }
+            if(this.controls.right){
+                this.angle-=0.05;
+            }
         }
         if(this.speed>this.maxSpeed/2) this.speed=this.maxSpeed/2;
         if(this.speed<-this.maxSpeed) this.speed=-this.maxSpeed;
@@ -35,13 +37,13 @@ class Car{
 
         console.log(this.angle);
 
-        this.x+=Math.cos(this.angle+Math.PI/2)*this.speed;
-        this.y+=Math.sin(this.angle+Math.PI/2)*this.speed;
+        this.x+=Math.sin(this.angle)*this.speed;
+        this.y+=Math.cos(this.angle)*this.speed;
     }
     draw(ctx){
         ctx.save();
         ctx.translate(this.x,this.y);
-        ctx.rotate(this.angle)
+        ctx.rotate(-this.angle)
         ctx.beginPath();
         ctx.rect(
             -this.width/2,
