@@ -28,8 +28,8 @@ class Car{
                 this.angle-=0.05;
             }
         }
-        if(this.speed>this.maxSpeed/2) this.speed=this.maxSpeed/2;
-        if(this.speed<-this.maxSpeed) this.speed=-this.maxSpeed;
+        //if(this.speed>this.maxSpeed/2) this.speed=this.maxSpeed/2;
+        //if(this.speed<-this.maxSpeed) this.speed=-this.maxSpeed;
 
         if(Math.abs(this.speed)<this.friction)this.speed=0;
         if(this.speed>0)this.speed-=this.friction;
@@ -37,6 +37,7 @@ class Car{
 
         this.x+=Math.sin(this.angle)*this.speed;
         this.y+=Math.cos(this.angle)*this.speed;
+        console.log(this.speed);
     }
     update(){
         this.#move();
