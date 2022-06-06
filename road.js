@@ -26,7 +26,7 @@ class Road{
     }
     draw(ctx){
         ctx.lineWidth=5;
-        ctx.strokeStyle="yellow";
+        ctx.strokeStyle="white";
 
         for (let i=1; i<this.laneCount; i++){
             let x = lerp(this.left,this.right,i/this.laneCount);
