@@ -42,9 +42,12 @@ class Car{
         this.y+=Math.cos(this.angle)*this.speed;
     }
     update(roadBorder){
-        this.#move();
-        this.polygon=this.#createPolygon();
-        this.damaged=this.#accessDamage(roadBorder);
+        if(!this.damaged){
+            this.#move();
+            this.polygon=this.#createPolygon();
+            this.damaged=this.#accessDamage(roadBorder);
+        }
+        
         this.sensors.update(roadBorder);
     }
     #accessDamage(roadBorder){
@@ -79,8 +82,7 @@ class Car{
     }
     draw(ctx){
         if(this.damaged){
-            this.y=0;
-            this.x=250;
+            ctx.fillStyle="red";
         }
         ctx.beginPath();
         ctx.moveTo(this.polygon[0].x,this.polygon[0].y);
