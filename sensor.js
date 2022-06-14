@@ -7,15 +7,15 @@ class Sensor{
         this.rays=[];
         this.readings=[];
     }
-    update(roadBorder){
+    update(roadBorder,traffic){
         this.#castRays();
         this.readings=[];
         for(let i=0;i<this.rayCount;i++){
             //The closest intersection or null if no intersection
-            this.readings.push(this.#getReading(this.rays[i],roadBorder));
+            this.readings.push(this.#getReading(this.rays[i],roadBorder,traffic));
         }
     }
-    #getReading(ray,roadBorder){
+    #getReading(ray,roadBorder,traffic){
         let touches=[];
         for(let i=0;i<roadBorder.length;i++){
             const touch=getIntersection(
@@ -27,6 +27,20 @@ class Sensor{
             //Return {x,y,offset} or null if no intersection
             if(touch){
                 touches.push(touch);
+            }
+        }
+        for(let i=0;i<traffic.length;i++){
+            const poly=traffic[i].polygon;
+            for(let j=0;j<poly.length;j++){
+                const touch=getIntersection(
+                    ray[0],
+                    ray[1],
+                    poly[j],
+                    poly[(j+1)%poly.length]
+                );
+                if(touch){
+                    touches.push(touch);
+                }
             }
         }
         if(touches.length==0){
@@ -66,7 +80,7 @@ class Sensor{
 
             ctx.beginPath();
             ctx.lineWidth=2;
-            ctx.strokeStyle="black";
+            ctx.strokeStyle="grey";
             ctx.moveTo(this.rays[i][1].x,this.rays[i][1].y);
             ctx.lineTo(end.x,end.y);
             ctx.stroke();

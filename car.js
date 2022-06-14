@@ -1,18 +1,20 @@
 class Car{
-    constructor(x,y,width,height){
+    constructor(x,y,width,height,controlType,maxSpeed){
         this.x=x;
         this.y=y;
         this.width=width;
         this.height=height;
         this.speed=0;
         this.accel=0.2;
-        this.maxSpeed=10;
+        this.maxSpeed=maxSpeed;
         this.friction=0.1;
         this.angle=0;
         this.damaged=false;
+        this.type=controlType;
+        this.polygon=this.#createPolygon();
 
-        this.controls= new Controls();
-        this.sensors=new Sensor(this);
+        this.controls = new Controls(controlType);
+        if(this.type=="KEY") this.sensors=new Sensor(this);
     }
     #move(){
         if(this.controls.forward){
@@ -38,21 +40,30 @@ class Car{
         if(this.speed>0)this.speed-=this.friction;
         if(this.speed<0)this.speed+=this.friction;
 
+        if(this.speed>this.maxSpeed) this.speed=this.maxSpeed;
+        if(this.speed<-this.maxSpeed) this.speed=-this.maxSpeed;
+
         this.x+=Math.sin(this.angle)*this.speed;
         this.y+=Math.cos(this.angle)*this.speed;
     }
-    update(roadBorder){
+    update(roadBorder,traffic){
         if(!this.damaged){
             this.#move();
             this.polygon=this.#createPolygon();
-            this.damaged=this.#accessDamage(roadBorder);
+            this.damaged=this.#accessDamage(roadBorder,traffic);
         }
         
-        this.sensors.update(roadBorder);
+        if(this.type=="KEY") this.sensors.update(roadBorder,traffic);
     }
-    #accessDamage(roadBorder){
+    #accessDamage(roadBorder,traffic){
         for(let i=0;i<roadBorder.length;i++){
             if(polyIntersect(this.polygon,roadBorder[i])){
+                return true;
+            }
+        }
+        for(let i=0;i<traffic.length;i++){
+            if(polyIntersect(this.polygon,traffic[i].polygon)){
+                traffic[i].damaged=true;
                 return true;
             }
         }
@@ -80,9 +91,12 @@ class Car{
         });
         return points;
     }
-    draw(ctx){
+    draw(ctx,defaultCol){
         if(this.damaged){
             ctx.fillStyle="red";
+        }
+        else{
+            ctx.fillStyle=defaultCol;
         }
         ctx.beginPath();
         ctx.moveTo(this.polygon[0].x,this.polygon[0].y);
@@ -90,6 +104,6 @@ class Car{
             ctx.lineTo(this.polygon[i].x,this.polygon[i].y);
         }
         ctx.fill();
-        this.sensors.draw(ctx);
+        if(this.type=="KEY") this.sensors.draw(ctx);
     }
 }
