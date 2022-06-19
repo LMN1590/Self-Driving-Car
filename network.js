@@ -1,9 +1,21 @@
 class NeuralNetworks{
     constructor(neuralCounts){
         this.levels=[];
-        for(let i=0;i<neuralCounts.length;i++){
-            
+        for(let i=0;i<neuralCounts.length-1;i++){
+            this.levels.push(new Level(
+                neuralCounts[i],
+                neuralCounts[i+1]
+            ));
         }
+    }
+    static feedForward(givenInputs,network){
+        let outputs=Level.feedForward(
+            givenInputs,network.levels[0]
+        );
+        for(let i=1;i<network.levels.length;i++){
+            outputs=Level.feedForward(outputs,network.levels[i]);
+        }
+        return outputs;
     }
 }
 class Level{

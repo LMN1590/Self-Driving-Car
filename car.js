@@ -12,9 +12,15 @@ class Car{
         this.damaged=false;
         this.type=controlType;
         this.polygon=this.#createPolygon();
+        this.useBrain=controlType=="AI";
 
         this.controls = new Controls(controlType);
-        if(this.type=="KEY") this.sensors=new Sensor(this);
+        if(this.type!="DUMMY") {
+            this.sensors=new Sensor(this);
+            this.brain= new NeuralNetworks(
+                [this.sensors.rayCount,6,4]
+            );
+        }
     }
     #move(){
         if(this.controls.forward){
@@ -25,7 +31,7 @@ class Car{
             if(this.speed<0) this.speed+=this.accel*2;
             else this.speed+=this.accel;
         }
-        if(this.controls.forward || this.controls.reverse){
+        if(this.speed!=0){
             if(this.controls.left){
                 this.angle+=0.05;
             }
@@ -53,7 +59,19 @@ class Car{
             this.damaged=this.#accessDamage(roadBorder,traffic);
         }
         
-        if(this.type=="KEY") this.sensors.update(roadBorder,traffic);
+        if(this.sensors) {
+            this.sensors.update(roadBorder,traffic);
+            const offsets=this.sensors.readings.map(
+                s=>s==null?0:1-s.offsets
+            );
+            const outputs=NeuralNetworks.feedForward(offsets,this.brain);
+            if(this.useBrain){
+                this.controls.forward=outputs[0]==1?true:false;
+                this.controls.reverse=outputs[1]==1?true:false;
+                this.controls.left=outputs[2]==1?true:false;
+                this.controls.right=outputs[3]==1?true:false;
+            }
+        }
     }
     #accessDamage(roadBorder,traffic){
         for(let i=0;i<roadBorder.length;i++){
@@ -104,6 +122,6 @@ class Car{
             ctx.lineTo(this.polygon[i].x,this.polygon[i].y);
         }
         ctx.fill();
-        if(this.type=="KEY") this.sensors.draw(ctx);
+        if(this.sensors) this.sensors.draw(ctx);
     }
 }
