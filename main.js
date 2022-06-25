@@ -13,10 +13,18 @@ const traffic=[]
 for(let i=0;i<laneCount;i++){
     traffic.push(new Car(road.getMiddleLane(i),Math.random()*200-400,30,50,"DUMMY",Math.random()*5))
 }
-const car=new Car(road.getMiddleLane(Math.floor(laneCount/2)),0,30,50,"AI",7)
+const car=new Car(road.getMiddleLane(Math.floor(laneCount/2)),0,30,50,"AI",7);
 animate()
 
-function animate(){
+function generateCars(N){
+    const cars=[];
+    for(let i=1;i<=N;i++){
+        cars.push(new Car(road.getMiddleLane(1),100,30,50,"AI",7));
+    }
+    return cars;
+}
+
+function animate(time){
     for(let i=0;i<traffic.length;i++){
         traffic[i].update(road.border,[]);
         if(Math.abs(traffic[i].y-car.y)>800) {
@@ -38,6 +46,7 @@ function animate(){
     car.draw(carCtx,"blue");
     
     carCtx.restore();
+    networkCtx.lineDashOffset=-time/50;
     Visualizer.drawNetwork(networkCtx,car.brain);
     requestAnimationFrame(animate);
 }

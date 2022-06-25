@@ -18,7 +18,7 @@ class Car{
         if(this.type!="DUMMY") {
             this.sensors=new Sensor(this);
             this.brain= new NeuralNetworks(
-                [this.sensors.rayCount,6,4]
+                [this.sensors.rayCount,6,5,5,4,4]
             );
         }
     }
@@ -62,7 +62,7 @@ class Car{
         if(this.sensors) {
             this.sensors.update(roadBorder,traffic);
             const offsets=this.sensors.readings.map(
-                s=>s==null?0:1-s.offsets
+                s=>s===null?0:1-s.offset
             );
             const outputs=NeuralNetworks.feedForward(offsets,this.brain);
             if(this.useBrain){
