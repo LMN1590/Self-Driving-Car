@@ -39,8 +39,6 @@ class Car{
                 this.angle-=0.05;
             }
         }
-        //if(this.speed>this.maxSpeed/2) this.speed=this.maxSpeed/2;
-        //if(this.speed<-this.maxSpeed) this.speed=-this.maxSpeed;
 
         if(Math.abs(this.speed)<this.friction)this.speed=0;
         if(this.speed>0)this.speed-=this.friction;
@@ -81,7 +79,7 @@ class Car{
         }
         for(let i=0;i<traffic.length;i++){
             if(polyIntersect(this.polygon,traffic[i].polygon)){
-                traffic[i].damaged=true;
+                //traffic[i].damaged=true;
                 return true;
             }
         }
@@ -109,9 +107,9 @@ class Car{
         });
         return points;
     }
-    draw(ctx,defaultCol){
+    draw(ctx,defaultCol,sensorsDraw=false){
         if(this.damaged){
-            ctx.fillStyle="red";
+            ctx.fillStyle="gray";
         }
         else{
             ctx.fillStyle=defaultCol;
@@ -122,6 +120,6 @@ class Car{
             ctx.lineTo(this.polygon[i].x,this.polygon[i].y);
         }
         ctx.fill();
-        if(this.sensors) this.sensors.draw(ctx);
+        if(this.sensors && sensorsDraw) this.sensors.draw(ctx);
     }
 }
