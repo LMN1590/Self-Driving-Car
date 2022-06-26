@@ -1,5 +1,10 @@
+var timer=5000;
+if(localStorage.getItem("timer")){
+    timer=JSON.parse(localStorage.getItem("timer"));
+}
+console.log(timer);
 const carCanvas=document.getElementById("carCanvas");
-carCanvas.width=400;
+carCanvas.width=200;
 
 const networkCanvas=document.getElementById("networkCanvas");
 networkCanvas.width=400;
@@ -11,15 +16,22 @@ const road=new Road(carCanvas.width/2,carCanvas.width*0.9,laneCount);
 
 const traffic=[]
 for(let i=0;i<laneCount;i++){
-    traffic.push(new Car(road.getMiddleLane(i),100-400,30,50,"DUMMY",5))
+    traffic.push(new Car(road.getMiddleLane(i),Math.random()*300-300,30,50,"DUMMY",Math.random()*5+5))
 }
-const cars=generateCars(100);
+const cars=generateCars(1000);
 let bestCar=cars[0];
 if(localStorage.getItem("bestBrain")){
-    bestCar.brain=JSON.parse(
-        localStorage.getItem("bestBrain")
-    );
+    for(let i=0;i<cars.length;i++){
+        cars[i].brain=JSON.parse(
+            localStorage.getItem("bestBrain")
+        );
+        if(i!=0){
+            NeuralNetworks.mutate(cars[i].brain,Math.random());
+        }
+    }
 }
+setTimeout("reset(timer);", timer);
+setTimeout("addTraffic(bestCar);", 4000);
 animate()
 
 function save(){
@@ -27,19 +39,18 @@ function save(){
         "bestBrain",
         JSON.stringify(bestCar.brain)
     );
-    console.log("saved");
-    console.log(localStorage.getItem("bestBrain"));
 }
 
 function discard(){
     localStorage.removeItem("bestBrain");
-    console.log(localStorage.getItem("bestBrain"));
+    localStorage.removeItem("timer");
+    timer=5000;
 }
 
 function generateCars(N){
     const cars=[];
     for(let i=1;i<=N;i++){
-        cars.push(new Car(road.getMiddleLane(1),100,30,50,"AI",7));
+        cars.push(new Car(road.getMiddleLane(1),100,30,50,"AI",15));
     }
     return cars;
 }
@@ -56,11 +67,6 @@ function animate(time){
     );
     for(let i=0;i<traffic.length;i++){
         traffic[i].update(road.border,[]);
-        if(Math.abs(traffic[i].y-bestCar.y)>800) {
-            traffic.splice(i,1);
-            traffic.splice(i,0,new Car(road.getMiddleLane(i),100-800+bestCar.y,30,50,"DUMMY",5));
-        }
-
     }
     //Setting up Canvas
     carCanvas.height=window.innerHeight;
@@ -86,4 +92,26 @@ function animate(time){
     //Drawing network
     Visualizer.drawNetwork(networkCtx,bestCar.brain);
     requestAnimationFrame(animate);
+}
+function reset(timer){
+    timer+=100;
+    if(timer>15000) timer=15000;
+    localStorage.setItem(
+        "timer",
+        JSON.stringify(timer)
+    );
+    if(localStorage.getItem("bestBrain")){
+        bestCar.brain=NeuralNetworks.merge(
+            JSON.parse(localStorage.getItem("bestBrain")),
+            bestCar.brain
+        );
+    }
+    save();
+    location.reload(true);
+}
+function addTraffic(bestCarLocal){
+    for(let i=0;i<laneCount;i++){
+        traffic.push(new Car(road.getMiddleLane(i),Math.random()*300-1000+bestCarLocal.y,30,50,"DUMMY",Math.random()*5+5))
+    }
+    setTimeout("addTraffic(bestCar);", 2000);
 }

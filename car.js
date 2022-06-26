@@ -18,7 +18,7 @@ class Car{
         if(this.type!="DUMMY") {
             this.sensors=new Sensor(this);
             this.brain= new NeuralNetworks(
-                [this.sensors.rayCount,6,5,5,4,4]
+                [this.sensors.rayCount,6,5,4]
             );
         }
     }

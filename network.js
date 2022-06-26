@@ -17,6 +17,47 @@ class NeuralNetworks{
         }
         return outputs;
     }
+    static mutate(network,amount=1){
+        network.levels.forEach(level => {
+            for(let i=0;i<level.biases.length;i++){
+                level.biases[i]=lerp(
+                    level.biases[i],
+                    Math.random()*2-1,
+                    amount
+                );
+            }
+            for(let i=0;i<level.weights.length;i++){
+                for(let j=0;j<level.weights[i].length;j++){
+                    level.weights[i][j]=lerp(
+                        level.weights[i][j],
+                        Math.random()*2-1,
+                        amount
+                    );
+                }
+            }
+        });
+    }
+    static merge(brain1,brain2){
+        for(let i=0;i<brain1.levels.length;i++){
+            for(let j=0;j<brain1.levels[i].biases.length;j++){
+                brain1.levels[i].biases[j]=lerp(
+                    brain1.levels[i].biases[j],
+                    brain2.levels[i].biases[j],
+                    Math.random()
+                );
+            }
+            for(let j=0;j<brain1.levels[i].weights.length;j++){
+                for(let k=0;k<brain1.levels[i].weights[j].length;k++){
+                    brain1.levels[i].weights[j][k]=lerp(
+                        brain1.levels[i].weights[j][k],
+                        brain2.levels[i].weights[j][k],
+                        Math.random()
+                    );
+                }
+            }
+        }
+        return brain1;
+    }
 }
 class Level{
     constructor(inputCount,outputCount){
