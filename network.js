@@ -23,7 +23,7 @@ class NeuralNetworks{
                 level.biases[i]=lerp(
                     level.biases[i],
                     Math.random()*2-1,
-                    amount
+                    Math.random()*0.5
                 );
             }
             for(let i=0;i<level.weights.length;i++){
@@ -31,7 +31,7 @@ class NeuralNetworks{
                     level.weights[i][j]=lerp(
                         level.weights[i][j],
                         Math.random()*2-1,
-                        amount
+                        Math.random()*0.5
                     );
                 }
             }
@@ -43,7 +43,7 @@ class NeuralNetworks{
                 brain1.levels[i].biases[j]=lerp(
                     brain1.levels[i].biases[j],
                     brain2.levels[i].biases[j],
-                    Math.random()
+                    Math.random()*0.5
                 );
             }
             for(let j=0;j<brain1.levels[i].weights.length;j++){
@@ -51,7 +51,7 @@ class NeuralNetworks{
                     brain1.levels[i].weights[j][k]=lerp(
                         brain1.levels[i].weights[j][k],
                         brain2.levels[i].weights[j][k],
-                        Math.random()
+                        Math.random()*0.5
                     );
                 }
             }
@@ -69,7 +69,6 @@ class Level{
         for(let i=0;i<inputCount;i++){
             this.weights.push(new Array(outputCount));
         }
-        
         Level.#randomize(this);
     }
     static #randomize(level){

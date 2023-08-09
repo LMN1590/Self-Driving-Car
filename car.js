@@ -5,7 +5,7 @@ class Car{
         this.width=width;
         this.height=height;
         this.speed=0;
-        this.accel=0.2;
+        this.accel=1;
         this.maxSpeed=maxSpeed;
         this.friction=0.1;
         this.angle=0;
@@ -18,7 +18,7 @@ class Car{
         if(this.type!="DUMMY") {
             this.sensors=new Sensor(this);
             this.brain= new NeuralNetworks(
-                [this.sensors.rayCount,6,5,4]
+                [this.sensors.rayCount+1,10,8,6,3]
             );
         }
     }
@@ -33,10 +33,10 @@ class Car{
         }
         if(this.speed!=0){
             if(this.controls.left){
-                this.angle+=0.05;
+                this.angle+=0.2;
             }
             if(this.controls.right){
-                this.angle-=0.05;
+                this.angle-=0.2;
             }
         }
 
@@ -50,11 +50,11 @@ class Car{
         this.x+=Math.sin(this.angle)*this.speed;
         this.y+=Math.cos(this.angle)*this.speed;
     }
-    update(roadBorder,traffic){
+    update(roadBorder,traffic,bestY){
         if(!this.damaged){
             this.#move();
             this.polygon=this.#createPolygon();
-            this.damaged=this.#accessDamage(roadBorder,traffic);
+            this.damaged=this.#accessDamage(roadBorder,traffic,bestY);
         }
         
         if(this.sensors) {
@@ -62,23 +62,23 @@ class Car{
             const offsets=this.sensors.readings.map(
                 s=>s===null?0:1-s.offset
             );
-            const outputs=NeuralNetworks.feedForward(offsets,this.brain);
+            const outputs=NeuralNetworks.feedForward([this.speed/15 + 1,...offsets],this.brain);
             if(this.useBrain){
                 this.controls.forward=outputs[0]==1?true:false;
                 this.controls.reverse=outputs[1]==1?true:false;
                 this.controls.left=outputs[2]==1?true:false;
-                this.controls.right=outputs[3]==1?true:false;
+                this.controls.right=!this.controls.left;
             }
         }
     }
-    #accessDamage(roadBorder,traffic){
+    #accessDamage(roadBorder,traffic,bestY){
         for(let i=0;i<roadBorder.length;i++){
-            if(polyIntersect(this.polygon,roadBorder[i])){
+            if(polyIntersect(this.polygon,roadBorder[i]) || Math.abs(bestY-this.y)>200){
                 return true;
             }
         }
         for(let i=0;i<traffic.length;i++){
-            if(polyIntersect(this.polygon,traffic[i].polygon)){
+            if(polyIntersect(this.polygon,traffic[i].polygon || Math.abs(bestY-this.y)>200)){
                 //traffic[i].damaged=true;
                 return true;
             }

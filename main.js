@@ -1,37 +1,38 @@
-var timer=5000;
+const org_timer=3000;
+var timer=org_timer;
 if(localStorage.getItem("timer")){
     timer=JSON.parse(localStorage.getItem("timer"));
 }
 console.log(timer);
 const carCanvas=document.getElementById("carCanvas");
-carCanvas.width=200;
+carCanvas.width=400;
 
 const networkCanvas=document.getElementById("networkCanvas");
 networkCanvas.width=400;
 
-const laneCount=3;
+const laneCount=7;
 const carCtx=carCanvas.getContext("2d");
 const networkCtx=networkCanvas.getContext("2d");
 const road=new Road(carCanvas.width/2,carCanvas.width*0.9,laneCount);
 
+const initY=[-296,-153,-118,-260,-271,-197,-285]
 const traffic=[]
 for(let i=0;i<laneCount;i++){
-    traffic.push(new Car(road.getMiddleLane(i),Math.random()*300-300,30,50,"DUMMY",Math.random()*5+5))
+    traffic.push(new Car(road.getMiddleLane(i),initY[i],30,50,"DUMMY",5))
 }
-const cars=generateCars(1000);
+const N = 500;
+const cars=generateCars(500);
 let bestCar=cars[0];
 if(localStorage.getItem("bestBrain")){
     for(let i=0;i<cars.length;i++){
         cars[i].brain=JSON.parse(
             localStorage.getItem("bestBrain")
         );
-        if(i!=0){
-            NeuralNetworks.mutate(cars[i].brain,Math.random());
-        }
+        NeuralNetworks.mutate(cars[i].brain,Math.random()*(i/(N-1)));
     }
 }
 setTimeout("reset(timer);", timer);
-setTimeout("addTraffic(bestCar);", 4000);
+setTimeout("addTraffic(bestCar);", 2000);
 animate()
 
 function save(){
@@ -44,13 +45,13 @@ function save(){
 function discard(){
     localStorage.removeItem("bestBrain");
     localStorage.removeItem("timer");
-    timer=5000;
+    timer=org_timer;
 }
 
 function generateCars(N){
     const cars=[];
     for(let i=1;i<=N;i++){
-        cars.push(new Car(road.getMiddleLane(1),100,30,50,"AI",15));
+        cars.push(new Car(road.getMiddleLane(Math.floor(laneCount/2)),100,30,50,"AI",30));
     }
     return cars;
 }
@@ -58,7 +59,7 @@ function generateCars(N){
 function animate(time){
     //Update all cars
     for(let i=0;i<cars.length;i++){
-        cars[i].update(road.border,traffic);
+        cars[i].update(road.border,traffic,bestCar.y);
     }
     bestCar=cars.find(
         c=> c.y==Math.min(
@@ -94,8 +95,8 @@ function animate(time){
     requestAnimationFrame(animate);
 }
 function reset(timer){
-    timer+=100;
-    if(timer>15000) timer=15000;
+    timer+=50;
+    if(timer>5000) timer=5000;
     localStorage.setItem(
         "timer",
         JSON.stringify(timer)
@@ -110,8 +111,8 @@ function reset(timer){
     location.reload(true);
 }
 function addTraffic(bestCarLocal){
-    for(let i=0;i<laneCount;i++){
-        traffic.push(new Car(road.getMiddleLane(i),Math.random()*300-1000+bestCarLocal.y,30,50,"DUMMY",Math.random()*5+5))
+    for(var i=0;i<7;i++){
+        traffic.push(new Car(road.getMiddleLane(i),Math.random()*300-650+bestCarLocal.y,30,50,"DUMMY",Math.random()*5+5))
     }
     setTimeout("addTraffic(bestCar);", 2000);
 }
